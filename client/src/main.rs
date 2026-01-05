@@ -28,20 +28,41 @@ use crate::game::game::GamePlugin;
 
 pub mod game;
 
-fn main() -> io::Result<()> {
-    let local = "0.0.0.0:8081";
-    let host = "0.0.0.0:8080";
-    if let Ok(server) = UdpSocket::bind(local) {
-        match server.connect(host) {
-            Ok(_) => {
-                run_client(server);
-            },
-            Err(e) => {return Err(e)},
-        }
-    }
-    
-    Ok(())
+fn main() {
+    println!("Hello??");
+    App::new()
+        .add_plugins((
+            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            WireframePlugin::default(),
+        ))
+        .add_plugins(GamePlugin)
+        .add_systems(
+            Update,
+            (
+                #[cfg(not(target_arch = "wasm32"))]
+                toggle_wireframe,
+            ),
+        )
+        .init_state::<GameState>()
+        .add_plugins(pause_screen::menu_plugin)
+        .run();
 }
+
+
+// fn main() -> io::Result<()> {
+    // let local = "0.0.0.0:8081";
+    // let host = "0.0.0.0:8080";
+    // if let Ok(server) = UdpSocket::bind(local) {
+    //     match server.connect(host) {
+    //         Ok(_) => {
+    //             run_client(server);
+    //         },
+    //         Err(e) => {return Err(e)},
+    //     }
+    // }
+    
+    // Ok(())
+// }
 
 fn run_client(server: UdpSocket) {
     info!("Starting client!");
